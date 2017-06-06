@@ -2653,7 +2653,7 @@ class PageObject(DictionaryObject):
  
          :return: a unicode string object.
         """
-        return  u_("").join(self.extractTextRaw())
+        return  u_("").join(self.extractTextArray())
         
     def extractTextArray(self):
         """

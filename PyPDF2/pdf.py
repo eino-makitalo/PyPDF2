@@ -2644,6 +2644,19 @@ class PageObject(DictionaryObject):
 
     def extractText(self):
         """
+         Locate all text drawing commands, in the order they are provided in the
+         content stream, and extract the text.  This works well for some PDF
+         files, but poorly for others, depending on the generator used.  This will
+         be refined in the future.  Do not rely on the order of text coming out of
+         this function, as it will change if this function is made more
+         sophisticated.
+ 
+         :return: a unicode string object.
+        """
+        return  u_("").join(self.extractTextRaw())
+        
+    def extractTextArray(self):
+        """
         Locate all text drawing commands, in the order they are provided in the
         content stream, and extract the text.  This works well for some PDF
         files, but poorly for others, depending on the generator used.  This will
@@ -2651,9 +2664,9 @@ class PageObject(DictionaryObject):
         this function, as it will change if this function is made more
         sophisticated.
 
-        :return: a unicode string object.
+        :return: array of text objects found.
         """
-        text = u_("")
+        text=[]
         content = self["/Contents"].getObject()
         if not isinstance(content, ContentStream):
             content = ContentStream(content, self.pdf)
@@ -2664,24 +2677,24 @@ class PageObject(DictionaryObject):
             if operator == b_("Tj"):
                 _text = operands[0]
                 if isinstance(_text, TextStringObject):
-                    text += _text
+                    text.append(u_(_text))
             elif operator == b_("T*"):
-                text += "\n"
+                text.append("\n")
             elif operator == b_("'"):
-                text += "\n"
+                text.append("\n")
                 _text = operands[0]
                 if isinstance(_text, TextStringObject):
-                    text += operands[0]
+                    text.append(u_(operands[0]))
             elif operator == b_('"'):
                 _text = operands[2]
                 if isinstance(_text, TextStringObject):
-                    text += "\n"
-                    text += _text
+                    text.append("\n")
+                    text.append(u_(_text))
             elif operator == b_("TJ"):
                 for i in operands[0]:
                     if isinstance(i, TextStringObject):
-                        text += i
-                text += "\n"
+                        text.append(u_(i))
+                text.append("\n")
         return text
 
     mediaBox = createRectangleAccessor("/MediaBox", ())
